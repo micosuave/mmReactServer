@@ -6,13 +6,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const fireAuth_1 = __importDefault(require("../util/fireAuth"));
-const https_1 = __importDefault(require("https"));
+const axios_1 = __importDefault(require("axios"));
 const { BAD_REQUEST, CREATED, OK } = http_status_codes_1.default;
 const token = process.env.courtListenerAPItoken;
 const pacerUserID = process.env.pacerUserID;
 const pacerPassWD = process.env.pacerPassWD;
 const urlHost = 'https://www.courtlistener.com';
 const apiRoot = urlHost + '/api/rest/v3';
+const axiosCL = axios_1.default.create({
+    baseURL: apiRoot,
+    // timeout: 1000,
+    headers: { 'Authorization': 'Token ' + token }
+});
 // User-route
 // const userRouter = Router();
 // userRouter.post('/signup', signupUser);
@@ -38,34 +43,71 @@ const clRouter = express_1.Router();
 // Pull from PACER
 // Fetch Judge
 // Fetch Parties
+clRouter.get('/parties/:dnum', fireAuth_1.default, (req, res) => {
+    const leaf = `?docket__id=${req.params.dnum}&order_by=id`;
+    const params = {
+        params: {
+            docket__id: req.params.dnum,
+            order_by: 'id'
+        }
+    };
+    const partystem = `/parties/`;
+    axiosCL.get(partystem, params)
+        .then((resp) => {
+        console.log('status:', resp.status, resp.statusText);
+        return res.status(resp.status).json(resp.data);
+    })
+        .catch((err) => {
+        console.error(err);
+        return res.status(500).json({ error: err.message });
+    });
+});
 // Fetch Attorneys
+clRouter.get('/attorneys/:dnum', fireAuth_1.default, (req, res) => {
+    const leaf = `?docket__id=${req.params.dnum}&order_by=id`;
+    const params = {
+        params: {
+            docket__id: req.params.dnum,
+            order_by: 'id'
+        }
+    };
+    const partystem = `/attorneys/`;
+    axiosCL.get(partystem, params)
+        .then((resp) => {
+        console.log('status:', resp.status, resp.statusText);
+        return res.status(resp.status).json(resp.data);
+    })
+        .catch((err) => {
+        console.error(err);
+        return res.status(500).json({ error: err.message });
+    });
+});
 // Fetch Entries
 // Fetch Docket
+clRouter.get('/dockets/:dnum', fireAuth_1.default, (req, res) => {
+    const dockstem = '/dockets/' + req.params.dnum;
+    axiosCL.get(dockstem)
+        .then((resp) => {
+        console.log('status:', resp.status, resp.statusText);
+        return res.status(resp.status).json(resp.data);
+    })
+        .catch((err) => {
+        console.error(err);
+        return res.status(500).json({ error: err.message });
+    });
+});
 // Search Courts
 clRouter.get('/search/:dnum/court/:courtId', fireAuth_1.default, (req, res) => {
     const stem2 = `/dockets/?docket_number__startswith=${req.params.dnum}&court__id=${req.params.courtId}`;
-    const fetchSource = apiRoot + stem2;
-    const options = {
-        headers: { Authorization: 'Token ' + token }
-    };
-    let resData;
-    https_1.default.get(fetchSource, options, (clres) => {
-        console.log('statusCode:', clres.statusCode);
-        // console.log('headers:', clres.headers);
-        clres.on('data', (d) => {
-            if (resData !== undefined)
-                resData = resData + d;
-            else
-                resData = d;
-            // process.stdout.write(d);
-        });
-        clres.on('end', () => {
-            res.status(200).json(JSON.parse(resData));
-        });
-    }).on('error', (e) => {
-        console.error(e);
+    axiosCL.get(stem2)
+        .then((resp) => {
+        console.log('status:', resp.status, resp.statusText);
+        return res.status(resp.status).json(resp.data);
+    })
+        .catch((err) => {
+        console.error(err);
+        return res.status(500).json({ error: err.message });
     });
 });
-// Fetch Dockets
 // Export the router
 exports.default = clRouter;
