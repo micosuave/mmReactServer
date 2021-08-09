@@ -83,6 +83,26 @@ clRouter.get('/attorneys/:dnum', fireAuth_1.default, (req, res) => {
     });
 });
 // Fetch Entries
+// Fetch any arbitrary CL resource
+clRouter.get('/proxy/', fireAuth_1.default, (req, res) => {
+    const source = new String(req.query.url).toString();
+    // console.log(source)
+    // verify its to courtlistener dont want to contact any other server
+    if (source.startsWith(urlHost)) {
+        axiosCL.get(source)
+            .then((resp) => {
+            console.log('status:', resp.status, resp.statusText);
+            return res.status(resp.status).json(resp.data);
+        })
+            .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: err.message });
+        });
+    }
+    else {
+        res.status(500).json({ error: 'Not a valid Court Listener URL' });
+    }
+});
 // Fetch Docket
 clRouter.get('/dockets/:dnum', fireAuth_1.default, (req, res) => {
     const dockstem = '/dockets/' + req.params.dnum;

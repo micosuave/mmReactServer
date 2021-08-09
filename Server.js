@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const morgan_1 = __importDefault(require("morgan"));
 const path_1 = __importDefault(require("path"));
+const helmet_1 = __importDefault(require("helmet"));
 const express_1 = __importDefault(require("express"));
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 require("express-async-errors");
@@ -24,8 +25,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 // Security
 if (process.env.NODE_ENV === 'production') {
-    app.use(morgan_1.default('dev'));
-    // app.use(helmet());
+    app.use(helmet_1.default());
 }
 // Add APIs
 app.use('/api', routes_1.default);
@@ -40,12 +40,12 @@ app.use((err, req, res, next) => {
 /************************************************************************************
  *                              Serve front-end content
  ***********************************************************************************/
-const viewsDir = path_1.default.join(__dirname, 'views');
-app.set('views', viewsDir);
+// const viewsDir = path.join(__dirname, 'views');
+// app.set('views', viewsDir); // we dont actually have any views
 const staticDir = path_1.default.join(__dirname, 'public');
 app.use(express_1.default.static(staticDir));
 app.get('*', (req, res) => {
-    res.sendFile('index.html', { root: viewsDir });
+    res.sendFile('index.html', { root: staticDir });
 });
 // Export express instance
 exports.default = app;

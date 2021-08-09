@@ -32,6 +32,7 @@ interface credentials {
  */
 export async function signupUser(req: Request, res: Response) {
         let token: string, userId: string;
+        console.log(req.body)
         const newUser: credentials = {
                 email: req.body.email,
                 password: req.body.password,
@@ -62,7 +63,7 @@ export async function signupUser(req: Request, res: Response) {
         db.ref(`/users/${newUser.handle}`).get()
             .then(doc => {
                 if (doc.exists()) {
-                    return res.status(400).json({ handle: 'This handle is already taken' })
+                    return res.status(400).json({ message: 'This handle is already taken' })
                 } // else {
                   return fireBase.auth()
                   .createUserWithEmailAndPassword(newUser.email, newUser.password )
@@ -118,10 +119,10 @@ export async function loginUser(req: Request, res: Response) {
         password: req.body.password
     };
     const errors: any = {};
-    console.log(user)
+    // console.log(user)  // Debug Only
     if (isEmpty(user.email)) errors.email = "Must not be empty";
     if (isEmpty(user.password)) errors.password = "Must not be empty";
-    console.log(Object.keys(errors).length)
+    // console.log(Object.keys(errors).length)
     if (Object.keys(errors).length > 0) return res.status(400).json(errors);
 
     fireBase

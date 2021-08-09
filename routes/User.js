@@ -39,6 +39,7 @@ const isEmail = (email) => {
 function signupUser(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         let token, userId;
+        console.log(req.body);
         const newUser = {
             email: req.body.email,
             password: req.body.password,
@@ -70,7 +71,7 @@ function signupUser(req, res) {
         admin_1.db.ref(`/users/${newUser.handle}`).get()
             .then(doc => {
             if (doc.exists()) {
-                return res.status(400).json({ handle: 'This handle is already taken' });
+                return res.status(400).json({ message: 'This handle is already taken' });
             } // else {
             return admin_1.fireBase.auth()
                 .createUserWithEmailAndPassword(newUser.email, newUser.password)
@@ -125,12 +126,12 @@ function loginUser(req, res) {
             password: req.body.password
         };
         const errors = {};
-        console.log(user);
+        // console.log(user)  // Debug Only
         if (isEmpty(user.email))
             errors.email = "Must not be empty";
         if (isEmpty(user.password))
             errors.password = "Must not be empty";
-        console.log(Object.keys(errors).length);
+        // console.log(Object.keys(errors).length)
         if (Object.keys(errors).length > 0)
             return res.status(400).json(errors);
         admin_1.fireBase

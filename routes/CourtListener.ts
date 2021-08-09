@@ -87,6 +87,25 @@ clRouter.get('/attorneys/:dnum', fireAuth, (req: Request, res: Response) => {
     })
 })
 // Fetch Entries
+// Fetch any arbitrary CL resource
+clRouter.get('/proxy/', fireAuth, (req: Request, res: Response) => {
+  const source = new String(req.query.url).toString()
+  // console.log(source)
+  // verify its to courtlistener dont want to contact any other server
+  if(source.startsWith(urlHost)){
+    axiosCL.get<ICLResp>(source)
+        .then((resp)=>{
+          console.log('status:', resp.status, resp.statusText);
+          return res.status(resp.status).json(resp.data)
+        })
+        .catch((err) => {
+          console.error(err);
+          return res.status(500).json({error: err.message})
+        })
+  } else {
+    res.status(500).json({error: 'Not a valid Court Listener URL'})
+  }
+})
 // Fetch Docket
 clRouter.get('/dockets/:dnum', fireAuth, (req: Request, res: Response)=>{
   const dockstem = '/dockets/'+ req.params.dnum;
