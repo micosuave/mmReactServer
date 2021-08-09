@@ -89,8 +89,10 @@ clRouter.get('/attorneys/:dnum', fireAuth, (req: Request, res: Response) => {
 // Fetch Entries
 // Fetch any arbitrary CL resource
 clRouter.get('/proxy/', fireAuth, (req: Request, res: Response) => {
-  const source = new String(req.query.url).toString()
+  let source = new String(req.query.url).toString()
   // console.log(source)
+  // guard against http downgrades
+  source = upgradeUrl(source)
   // verify its to courtlistener dont want to contact any other server
   if(source.startsWith(urlHost)){
     axiosCL.get<ICLResp>(source)
