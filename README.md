@@ -5,7 +5,7 @@
 
 Note: Firebase configurations need to be placed in ./config for the server to run
 You must also remember to symlink as the dir 'public'
-`ln -s /path/to/motionMakerReact/build /path/to/mm-server-ts/public`
+`ln -s /path/to/motionMakerReact/build /path/to/mmReactServer/public`
 
 ### Environment
 
